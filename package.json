@@ -14,8 +14,7 @@
   "lint-staged": {
     "*.{js,mjs,json,css,md}": [
       "prettier --write",
-      "eslint --fix",
-      "git add"
+      "eslint --fix"
     ]
   },
   "keywords": [],
@@ -31,9 +30,11 @@
     "nodemailer": "^7.0.3"
   },
   "devDependencies": {
+    "@eslint/js": "^9.27.0",
     "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.4.0",
+    "globals": "^16.2.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.0.0",
     "nodemon": "^3.1.10",
