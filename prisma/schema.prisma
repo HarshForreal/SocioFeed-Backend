@@ -10,13 +10,15 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  username  String   @unique
-  email     String   @unique
-  password  String
-  bio       String?
-  avatarUrl String?
-  isActive  Boolean  @default(false)
+  id           String  @id @default(uuid())
+  username     String  @unique
+  email        String  @unique
+  password     String
+  bio          String?
+  avatarUrl    String?
+  isActive     Boolean @default(false)
+  refreshToken String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

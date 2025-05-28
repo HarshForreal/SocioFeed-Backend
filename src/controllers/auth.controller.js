@@ -1,12 +1,12 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import prisma from "../config/db.js";
-import nodemailer from "nodemailer";
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import prisma from '../config/db.js';
+import nodemailer from 'nodemailer';
 import {
   isValidUsername,
   isValidEmail,
   isValidPassword,
-} from "../utils/validation.js";
+} from '../utils/validation.js';
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
@@ -25,26 +25,24 @@ export const registerUser = async (req, res) => {
   try {
     // Validate inputs
     if (!username || !email || !password || !confirmPassword) {
-      return res.status(400).json({ message: "All fields are required." });
+      return res.status(400).json({ message: 'All fields are required.' });
     }
     if (!isValidUsername(username)) {
       return res
         .status(400)
-        .json({ message: "Username must be alphanumeric." });
+        .json({ message: 'Username must be alphanumeric.' });
     }
     if (!isValidEmail(email)) {
-      return res.status(400).json({ message: "Invalid email format." });
+      return res.status(400).json({ message: 'Invalid email format.' });
     }
     if (!isValidPassword(password)) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Password must be minimum 8 characters with uppercase, lowercase, number, and symbol.",
-        });
+      return res.status(400).json({
+        message:
+          'Password must be minimum 8 characters with uppercase, lowercase, number, and symbol.',
+      });
     }
     if (password !== confirmPassword) {
-      return res.status(400).json({ message: "Passwords do not match." });
+      return res.status(400).json({ message: 'Passwords do not match.' });
     }
 
     // Check if username or email exists
@@ -54,7 +52,7 @@ export const registerUser = async (req, res) => {
     if (existingUser) {
       return res
         .status(400)
-        .json({ message: "Username or email already exists." });
+        .json({ message: 'Username or email already exists.' });
     }
 
     // Hash password
@@ -67,7 +65,7 @@ export const registerUser = async (req, res) => {
 
     // Generate activation token (expires in 1 day)
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
+      expiresIn: '1d',
     });
 
     // Send activation email
@@ -75,20 +73,18 @@ export const registerUser = async (req, res) => {
     await transporter.sendMail({
       from: `"SocioFeed" <${process.env.EMAIL_USER}>`,
       to: user.email,
-      subject: "Activate your SocioFeed account",
+      subject: 'Activate your SocioFeed account',
       html: `<p>Hello ${user.username},</p>
              <p>Please click <a href="${activationLink}">here</a> to activate your account. This link expires in 24 hours.</p>`,
     });
 
-    res
-      .status(201)
-      .json({
-        message:
-          "Registration successful. Please check your email to activate your account.",
-      });
+    res.status(201).json({
+      message:
+        'Registration successful. Please check your email to activate your account.',
+    });
   } catch (err) {
-    console.error("Register error:", err);
-    res.status(500).json({ message: "Server error." });
+    console.error('Register error:', err);
+    res.status(500).json({ message: 'Server error.' });
   }
 };
 
@@ -102,10 +98,10 @@ export const activateAccount = async (req, res) => {
       where: { id: decoded.userId },
       data: { isActive: true },
     });
-    res.json({ message: "Account activated successfully." });
+    res.json({ message: 'Account activated successfully.' });
   } catch (err) {
-    console.error("Activation error:", err);
-    res.status(400).json({ message: "Invalid or expired activation token." });
+    console.error('Activation error:', err);
+    res.status(400).json({ message: 'Invalid or expired activation token.' });
   }
 };
 
@@ -117,7 +113,7 @@ export const loginUser = async (req, res) => {
     if (!usernameOrEmail || !password) {
       return res
         .status(400)
-        .json({ message: "Username/email and password are required." });
+        .json({ message: 'Username/email and password are required.' });
     }
 
     const user = await prisma.user.findFirst({
@@ -127,23 +123,45 @@ export const loginUser = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(400).json({ message: "User not found." });
+      return res.status(400).json({ message: 'User not found.' });
     }
     if (!user.isActive) {
-      return res.status(403).json({ message: "Account is not activated." });
+      return res.status(403).json({ message: 'Account is not activated.' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials." });
+      return res.status(400).json({ message: 'Invalid credentials.' });
     }
 
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
+    const accessToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+      expiresIn: '15m', // short-lived access token
+    });
+
+    const refreshToken = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_REFRESH_SECRET,
+      {
+        expiresIn: '7d', // longer lived refresh token
+      },
+    );
+
+    // Save refresh token to DB for the user
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken },
+    });
+
+    // Send tokens to client (usually access token in body, refresh token in HTTP-only cookie)
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     res.json({
-      token,
+      token: accessToken,
       user: {
         id: user.id,
         username: user.username,
@@ -151,8 +169,8 @@ export const loginUser = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ message: "Server error." });
+    console.error('Login error:', err);
+    res.status(500).json({ message: 'Server error.' });
   }
 };
 
@@ -160,32 +178,32 @@ export const loginUser = async (req, res) => {
 export const requestPasswordReset = async (req, res) => {
   const { email } = req.body;
   try {
-    if (!email) return res.status(400).json({ message: "Email is required." });
+    if (!email) return res.status(400).json({ message: 'Email is required.' });
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user)
       return res
         .status(400)
-        .json({ message: "User with that email does not exist." });
+        .json({ message: 'User with that email does not exist.' });
 
     // Generate reset token (expires in 1 hour)
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: '1h',
     });
 
     const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
     await transporter.sendMail({
       from: `"SocioFeed" <${process.env.EMAIL_USER}>`,
       to: user.email,
-      subject: "SocioFeed Password Reset",
+      subject: 'SocioFeed Password Reset',
       html: `<p>Hello ${user.username},</p>
              <p>Please click <a href="${resetLink}">here</a> to reset your password. This link expires in 1 hour.</p>`,
     });
 
-    res.json({ message: "Password reset email sent." });
+    res.json({ message: 'Password reset email sent.' });
   } catch (err) {
-    console.error("Password reset request error:", err);
-    res.status(500).json({ message: "Server error." });
+    console.error('Password reset request error:', err);
+    res.status(500).json({ message: 'Server error.' });
   }
 };
 
@@ -198,18 +216,16 @@ export const resetPassword = async (req, res) => {
     if (!newPassword || !confirmNewPassword) {
       return res
         .status(400)
-        .json({ message: "Both password fields are required." });
+        .json({ message: 'Both password fields are required.' });
     }
     if (newPassword !== confirmNewPassword) {
-      return res.status(400).json({ message: "Passwords do not match." });
+      return res.status(400).json({ message: 'Passwords do not match.' });
     }
     if (!isValidPassword(newPassword)) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Password must be minimum 8 characters with uppercase, lowercase, number, and symbol.",
-        });
+      return res.status(400).json({
+        message:
+          'Password must be minimum 8 characters with uppercase, lowercase, number, and symbol.',
+      });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -220,9 +236,64 @@ export const resetPassword = async (req, res) => {
       data: { password: hashedPassword },
     });
 
-    res.json({ message: "Password reset successful." });
+    res.json({ message: 'Password reset successful.' });
   } catch (err) {
-    console.error("Password reset error:", err);
-    res.status(400).json({ message: "Invalid or expired token." });
+    console.error('Password reset error:', err);
+    res.status(400).json({ message: 'Invalid or expired token.' });
+  }
+};
+
+export const refreshToken = async (req, res) => {
+  try {
+    const token = req.cookies.refreshToken;
+    if (!token)
+      return res.status(401).json({ message: 'Refresh token missing' });
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+    } catch {
+      return res.status(403).json({ message: 'Invalid refresh token' });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+    });
+    if (!user || user.refreshToken !== token) {
+      return res.status(403).json({ message: 'Refresh token not recognized' });
+    }
+
+    const newAccessToken = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: '15m',
+      },
+    );
+
+    // Optional: rotate refresh token
+    const newRefreshToken = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_REFRESH_SECRET,
+      {
+        expiresIn: '7d',
+      },
+    );
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken: newRefreshToken },
+    });
+
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.json({ token: newAccessToken });
+  } catch (err) {
+    console.error('Refresh token error:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 };

@@ -61,7 +61,9 @@ export default [
       'key-spacing': ['error', { beforeColon: false, afterColon: true }],
       'keyword-spacing': ['error', { before: true, after: true }],
       'line-comment-position': 'off',
-      'linebreak-style': ['error', 'unix'],
+      'linebreak-style':
+        process.platform === 'win32' ? 'off' : ['error', 'unix'],
+
       'max-len': [
         'error',
         {
@@ -126,7 +128,6 @@ export default [
     ],
   },
 
-  // Specific rules for test files
   {
     files: ['**/*.test.js', '**/*.spec.js', '**/tests/**/*.js'],
     languageOptions: {
