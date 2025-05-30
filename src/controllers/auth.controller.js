@@ -1,4 +1,3 @@
-// controllers/auth.controller.js
 import * as registerService from '../services/auth/register.service.js';
 import * as loginService from '../services/auth/login.service.js';
 import * as activateService from '../services/auth/activate.service.js';
@@ -15,7 +14,7 @@ export const registerUser = async (req, res) => {
     const result = await registerService.registerUser(req.body);
     res.status(result.status).json({ message: result.message });
   } catch (err) {
-    console.error('Register error:', err);
+    console.error('Register error:');
     res
       .status(err.status || 500)
       .json({ message: err.message || ERROR_MESSAGES.SERVER_ERROR });
@@ -36,7 +35,7 @@ export const loginUser = async (req, res) => {
 
     res.status(status).json({ token: accessToken, user });
   } catch (err) {
-    console.error('Login error:', err);
+    console.error('Login error:');
     res
       .status(err.status || 500)
       .json({ message: err.message || ERROR_MESSAGES.SERVER_ERROR });
@@ -48,7 +47,7 @@ export const activateAccount = async (req, res) => {
     const result = await activateService.activateAccount(req.params.token);
     res.status(result.status).json({ message: result.message });
   } catch (err) {
-    console.error('Activation error:', err);
+    console.error('Activation error');
     res
       .status(err.status || 500)
       .json({ message: err.message || ERROR_MESSAGES.SERVER_ERROR });
@@ -62,7 +61,7 @@ export const requestPasswordReset = async (req, res) => {
     );
     res.status(result.status).json({ message: result.message });
   } catch (err) {
-    console.error('Password reset request error:', err);
+    console.error('Password reset request error:');
     res
       .status(err.status || 500)
       .json({ message: err.message || ERROR_MESSAGES.SERVER_ERROR });

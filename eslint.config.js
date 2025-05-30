@@ -20,13 +20,14 @@ export default [
     rules: {
       // Possible Errors
       'no-console': 'off', // Allow console.log in backend
-      'no-unused-vars': [
-        'warn',
-        {
-          argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_',
-        },
-      ],
+      // 'no-unused-vars': [
+      //   'warn',
+      //   {
+      //     argsIgnorePattern: '^_',
+      //     varsIgnorePattern: '^_',
+      //   },
+      // ],
+      'no-unused-vars': 'off',
 
       // Best Practices
       eqeqeq: ['error', 'always'],
