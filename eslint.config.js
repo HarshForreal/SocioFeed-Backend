@@ -51,7 +51,7 @@ export default [
       'array-bracket-spacing': ['error', 'never'],
       'block-spacing': ['error', 'always'],
       'brace-style': ['error', '1tbs', { allowSingleLine: true }],
-      'comma-dangle': ['error', 'always-multiline'],
+      // 'comma-dangle': ['error', 'always-multiline'],
       'comma-spacing': ['error', { before: false, after: true }],
       'comma-style': ['error', 'last'],
       'computed-property-spacing': ['error', 'never'],
