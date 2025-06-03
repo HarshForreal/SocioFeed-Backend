@@ -128,7 +128,7 @@ export const logoutUser = async (req, res) => {
 export const verifyUser = async (req, res) => {
   try {
     const token = req.cookies.refreshToken;
-    const result = await verifyUserService.vcerifyUser(token);
+    const result = await verifyUserService.verifyUser(token);
     res.status(result.status).json({ user: result.user });
   } catch (err) {
     res

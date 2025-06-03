@@ -6,7 +6,7 @@ import * as getFollowersService from '../services/user/getFollowers.service.js';
 import * as getFollowingService from '../services/user/getFollowing.service.js';
 import * as searchService from '../services/user/searchUsers.service.js';
 import * as getUserPostsService from '../services/user/getUserPosts.service.js';
-
+import { uploadAvatarService } from '../services/user/uploadAvatar.service.js';
 import { ERROR_MESSAGES } from '../utils/errorMessages.js';
 
 export const getUserProfile = async (req, res) => {
@@ -27,8 +27,10 @@ export const getUserProfile = async (req, res) => {
 
 export const editUserProfile = async (req, res) => {
   try {
-    const userId = req.user.id; // from authenticate middleware
+    const userId = req.user.id;
     const { username, bio, avatarUrl } = req.body;
+
+    console.log('Received update profile data:', { username, bio, avatarUrl }); // Add this
 
     const result = await editProfileService.editUserProfile(userId, {
       username,
@@ -41,7 +43,7 @@ export const editUserProfile = async (req, res) => {
     console.error('Edit Profile error:', err);
     res
       .status(err.status || 500)
-      .json({ message: err.message || ERROR_MESSAGES.SERVER_ERROR });
+      .json({ message: err.message || 'Server error' });
   }
 };
 
@@ -106,11 +108,27 @@ export const getFollowing = async (req, res) => {
   }
 };
 
+// export const searchUsers = async (req, res) => {
+//   try {
+//     const { q } = req.query;
+
+//     const result = await searchService.searchUsers(q);
+
+//     res.status(result.status).json({ users: result.users });
+//   } catch (err) {
+//     console.error('User Search error:', err);
+//     res
+//       .status(err.status || 500)
+//       .json({ message: err.message || ERROR_MESSAGES.SERVER_ERROR });
+//   }
+// };
+
 export const searchUsers = async (req, res) => {
   try {
     const { q } = req.query;
+    const currentUserId = req.user.id;
 
-    const result = await searchService.searchUsers(q);
+    const result = await searchService.searchUsers(q, currentUserId);
 
     res.status(result.status).json({ users: result.users });
   } catch (err) {
@@ -136,5 +154,28 @@ export const getUserPosts = async (req, res) => {
     res
       .status(error.status || 500)
       .json({ message: error.message || ERROR_MESSAGES.SERVER_ERROR });
+  }
+};
+
+export const uploadAvatar = async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+
+    const userId = req.user.id; // Get user ID from auth middleware
+
+    console.log('Uploading avatar for user:', userId);
+
+    const result = await uploadAvatarService(req.file.buffer, userId);
+
+    console.log('Avatar upload result:', result);
+
+    res.status(200).json({
+      url: result.url,
+      user: result.user,
+      message: 'Avatar uploaded and profile updated successfully',
+    });
+  } catch (err) {
+    console.error('Avatar upload error:', err);
+    res.status(500).json({ message: 'Failed to upload avatar' });
   }
 };
