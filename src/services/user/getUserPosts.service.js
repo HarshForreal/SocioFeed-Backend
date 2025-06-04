@@ -31,6 +31,13 @@ export async function getUserPosts(userId, { skip = 0, take = 10 } = {}) {
       images: { select: { url: true } },
       likes: { select: { userId: true } },
       comments: { select: { id: true } },
+      author: {
+        select: {
+          id: true,
+          username: true,
+          avatarUrl: true,
+        },
+      },
     },
   });
 
@@ -43,6 +50,7 @@ export async function getUserPosts(userId, { skip = 0, take = 10 } = {}) {
     images: post.images.map((img) => img.url),
     likesCount: post.likes.length,
     commentsCount: post.comments.length,
+    author: post.author,
   }));
 
   return {
