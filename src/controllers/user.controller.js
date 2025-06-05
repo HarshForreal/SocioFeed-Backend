@@ -30,8 +30,6 @@ export const editUserProfile = async (req, res) => {
     const userId = req.user.id;
     const { username, bio, avatarUrl } = req.body;
 
-    console.log('Received update profile data:', { username, bio, avatarUrl }); // Add this
-
     const result = await editProfileService.editUserProfile(userId, {
       username,
       bio,
@@ -107,21 +105,6 @@ export const getFollowing = async (req, res) => {
       .json({ message: err.message || ERROR_MESSAGES.SERVER_ERROR });
   }
 };
-
-// export const searchUsers = async (req, res) => {
-//   try {
-//     const { q } = req.query;
-
-//     const result = await searchService.searchUsers(q);
-
-//     res.status(result.status).json({ users: result.users });
-//   } catch (err) {
-//     console.error('User Search error:', err);
-//     res
-//       .status(err.status || 500)
-//       .json({ message: err.message || ERROR_MESSAGES.SERVER_ERROR });
-//   }
-// };
 
 export const searchUsers = async (req, res) => {
   try {
