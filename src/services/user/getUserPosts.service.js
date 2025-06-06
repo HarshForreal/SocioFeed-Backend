@@ -17,7 +17,7 @@ export async function getUserPosts(userId, { skip = 0, take = 10 } = {}) {
     throw error;
   }
 
-  // Fetch posts with related data
+  // In your getUserPosts function (backend):
   const posts = await prisma.post.findMany({
     where: { authorId: userId },
     orderBy: { createdAt: 'desc' },
@@ -29,7 +29,7 @@ export async function getUserPosts(userId, { skip = 0, take = 10 } = {}) {
       createdAt: true,
       updatedAt: true,
       images: { select: { url: true } },
-      likes: { select: { userId: true } },
+      likes: { select: { userId: true } }, // Fetch the likes along with the post
       comments: { select: { id: true } },
       author: {
         select: {
@@ -48,8 +48,8 @@ export async function getUserPosts(userId, { skip = 0, take = 10 } = {}) {
     createdAt: post.createdAt,
     updatedAt: post.updatedAt,
     images: post.images.map((img) => img.url),
-    likesCount: post.likes.length,
-    commentsCount: post.comments.length,
+    likesCount: post.likes.length, // Calculate likes count here
+    commentsCount: post.comments.length, // Calculate comments count here
     author: post.author,
   }));
 

@@ -98,9 +98,12 @@ model SavedPost {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
 
+  createdAt DateTime @default(now())  // ADD THIS LINE
+
   @@unique([postId, userId])
   @@map("saved_posts")
 }
+
 
 model Follow {
   id String @id @default(uuid())

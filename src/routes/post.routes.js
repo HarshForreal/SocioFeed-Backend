@@ -15,6 +15,7 @@ router.post(
 router.patch('/like/:id', authenticate, postController.handleToggleLike);
 router.post('/save/:id', authenticate, postController.handleSavePost);
 router.delete('/unsave/:id', authenticate, postController.handleUnsavePost);
+router.get('/saved', authenticate, postController.handleGetSavedPosts);
 router.get('/:id', authenticate, postController.handleGetPostById);
 router.delete('/delete/:id', authenticate, postController.handleDeletePost);
 router.post('/:postId/comment', authenticate, postController.handleAddComment);
@@ -29,7 +30,5 @@ router.delete(
   authenticate,
   postController.handleDeleteComment
 );
-
-router.get('/saved', authenticate, postController.handleGetSavedPosts);
 
 export default router;
