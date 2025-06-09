@@ -131,7 +131,6 @@ export const getUserPosts = async (req, res) => {
       skip,
       take,
     });
-    console.log('Fetched User Posts from backend', result.posts);
     res.status(result.status).json({ posts: result.posts });
   } catch (error) {
     console.error('Get User Posts error:', error);
