@@ -2,11 +2,10 @@ import prisma from '../../config/db.js';
 import { STATUS } from '../../utils/responseStatus.js';
 
 export const likePost = async (userId, postId) => {
-  // Check if post exists (optional but safe)
   const post = await prisma.post.findUnique({
     where: { id: postId },
     include: {
-      likes: true, // get updated likes
+      likes: true,
     },
   });
 
@@ -17,7 +16,6 @@ export const likePost = async (userId, postId) => {
     };
   }
 
-  // Check if user already liked
   const existing = await prisma.like.findUnique({
     where: {
       postId_userId: { postId, userId },
@@ -27,7 +25,6 @@ export const likePost = async (userId, postId) => {
   let updatedLikes;
 
   if (existing) {
-    // Unlike
     await prisma.like.delete({
       where: {
         postId_userId: { postId, userId },
@@ -45,7 +42,6 @@ export const likePost = async (userId, postId) => {
       },
     };
   } else {
-    // Like
     await prisma.like.create({
       data: { userId, postId },
     });

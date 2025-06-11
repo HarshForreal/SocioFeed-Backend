@@ -1,4 +1,3 @@
-// src/controllers/message.controller.js
 import * as messageService from '../services/chat/message.service.js';
 
 export const getMessagesBetweenUsers = async (req, res) => {

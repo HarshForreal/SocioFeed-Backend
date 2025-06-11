@@ -15,7 +15,7 @@ export async function searchUsers(query, currentUserId) {
         { username: { contains: query, mode: 'insensitive' } },
         { bio: { contains: query, mode: 'insensitive' } },
       ],
-      NOT: { id: currentUserId }, // optional: don't return current user
+      NOT: { id: currentUserId },
     },
     select: {
       id: true,
@@ -32,7 +32,6 @@ export async function searchUsers(query, currentUserId) {
     take: 20,
   });
 
-  // Map follow status
   const result = users.map((user) => ({
     ...user,
     isFollowing: user.followers.length > 0,

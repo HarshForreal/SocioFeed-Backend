@@ -25,7 +25,6 @@ export async function getFollowers(userId) {
     throw error;
   }
 
-  // Map followers to simpler format
   const followerList = followers.map((f) => ({
     id: f.follower.id,
     username: f.follower.username,

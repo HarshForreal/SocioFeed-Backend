@@ -25,7 +25,6 @@ export async function getFollowing(userId) {
     throw error;
   }
 
-  // Map following to simpler format
   const followingList = following.map((f) => ({
     id: f.followee.id,
     username: f.followee.username,

@@ -2,7 +2,6 @@ import prisma from '../../config/db.js';
 
 export const editUserProfile = async (userId, data) => {
   try {
-    // Only include fields that are actually provided
     const updateData = {};
     if (data.username !== undefined) updateData.username = data.username;
     if (data.bio !== undefined) updateData.bio = data.bio;

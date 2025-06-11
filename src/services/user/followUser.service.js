@@ -8,7 +8,6 @@ export async function followUser(followerId, followeeId) {
     throw error;
   }
 
-  // Check if follow relationship already exists
   const existingFollow = await prisma.follow.findUnique({
     where: {
       followerId_followeeId: {
@@ -24,7 +23,6 @@ export async function followUser(followerId, followeeId) {
     throw error;
   }
 
-  // Check if followee exists and is active
   const userToFollow = await prisma.user.findUnique({
     where: { id: followeeId },
     select: { isActive: true },
@@ -36,7 +34,6 @@ export async function followUser(followerId, followeeId) {
     throw error;
   }
 
-  // Create follow relationship
   await prisma.follow.create({
     data: {
       followerId,

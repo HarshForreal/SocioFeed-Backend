@@ -8,7 +8,6 @@ export async function unfollowUser(followerId, followeeId) {
     throw error;
   }
 
-  // Check if follow relationship exists
   const existingFollow = await prisma.follow.findUnique({
     where: {
       followerId_followeeId: {
@@ -24,7 +23,6 @@ export async function unfollowUser(followerId, followeeId) {
     throw error;
   }
 
-  // Delete follow relationship
   await prisma.follow.delete({
     where: {
       followerId_followeeId: {

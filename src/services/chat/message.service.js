@@ -1,4 +1,3 @@
-// src/services/chat/message.service.js
 import prisma from '../../config/db.js';
 
 export const fetchMessagesBetweenUsers = async (userId, contactId) => {

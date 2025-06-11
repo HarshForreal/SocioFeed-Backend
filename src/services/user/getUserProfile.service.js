@@ -3,7 +3,6 @@ import { STATUS } from '../../utils/responseStatus.js';
 import { ERROR_MESSAGES } from '../../utils/errorMessages.js';
 
 export async function getUserProfile(identifier) {
-  // identifier can be username or userId
   const user = await prisma.user.findFirst({
     where: {
       OR: [{ username: identifier }, { id: identifier }],
@@ -44,11 +43,9 @@ export async function getUserProfile(identifier) {
     throw error;
   }
 
-  // Prepare follower and following counts
   const followerCount = user.followers.length;
   const followingCount = user.following.length;
 
-  // Prepare posts count and simplified posts data
   const postsCount = user.posts.length;
   const posts = user.posts.map((post) => ({
     id: post.id,

@@ -18,12 +18,10 @@ const corsOptions = {
   credentials: true,
 };
 
-// Middleware setup
 app.use(cookieParser());
 app.use(express.json());
 app.use(cors(corsOptions));
 
-// Routes setup
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/post', postRoutes);
@@ -31,17 +29,14 @@ app.use('/api/messages', messageRoutes);
 
 app.use(errorHandler);
 
-// Create HTTP server
 const server = createServer(app);
 
-// Initialize WebSocket (Socket.IO)
 initSocket(server);
 
-// Start the server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Socket.IO server is ready on http://localhost:${PORT}`);
 });
 
-export default app; // Export app for testing or other purposes
+export default app;
