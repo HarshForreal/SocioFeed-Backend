@@ -3,8 +3,7 @@ import * as userController from '../controllers/user.controller.js';
 import { authenticate } from '../middlewares/auth.middleware.js'; // your JWT auth middleware
 import multer from 'multer';
 const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() });
-
+import upload from '../config/multer.js';
 router.get('/profile/:username', authenticate, userController.getUserProfile);
 router.put('/profile/edit', authenticate, userController.editUserProfile);
 router.post('/follow/:userId', authenticate, userController.followUser);

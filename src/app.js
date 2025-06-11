@@ -7,6 +7,7 @@ import postRoutes from './routes/post.routes.js';
 import messageRoutes from './routes/message.routes.js';
 import cookieParser from 'cookie-parser';
 import { initSocket } from './sockets/chatSocket.js';
+import { errorHandler } from './middlewares/error.middleware.js';
 import cors from 'cors';
 
 dotenv.config();
@@ -27,6 +28,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/post', postRoutes);
 app.use('/api/messages', messageRoutes);
+
+app.use(errorHandler);
 
 // Create HTTP server
 const server = createServer(app);

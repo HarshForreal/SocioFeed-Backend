@@ -1,4 +1,3 @@
-// utils/errorMessages.js
 export const ERROR_MESSAGES = {
   REQUIRED_FIELDS: 'All fields are required.',
   INVALID_USERNAME: 'Username must be alphanumeric.',
